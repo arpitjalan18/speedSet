@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>Page Title</title>
+	<link href="setCSS.css" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+	<div id="myModal" class="modal">
+
+		<!-- Modal content -->
+		<div class="modal-content">
+			<span class="close">&times;</span>
+			<p>Congrats! You Won!</p>
+			<p class = "button" id="newgame" onclick="newGame()">New Game</p>
+		</div>
+
+	</div>
+	<section id="cardHolder" class="memory-game">
+		<div id="c1" class="set-cell" onclick="cellClicked('1')">
+			<svg viewBox=" -7 -7 90 164" id="c1v1">
+				<use href="#oval-shape" id="c1b1" fill="url(#green-stripes)" stroke="rgb(0, 178, 89)" stroke-width="7">
+				</use>
+			</svg>
+		</div>
+		<div id="c2" class="set-cell" onclick="cellClicked('2')">
+			<svg viewBox=" -7 -7 90 164" id="c2v1">
+				<use href="#oval-shape" id="c2b1" fill="url(#green-stripes)" stroke="rgb(0, 178, 89)" stroke-width="7">
+				</use>
+			</svg>
+		</div>
+		<div id="c3" class="set-cell" onclick="cellClicked('3')">
+			<svg viewBox=" -7 -7 90 164" id="c3v1">
+				<use href="#oval-shape" id="c3b1" fill="url(#green-stripes)" stroke="rgb(0, 178, 89)" stroke-width="7">
+				</use>
+			</svg>
+		</div>
+		<div id="c4" class="set-cell" onclick="cellClicked('4')">
+			<svg viewBox=" -7 -7 90 164" id="c4v1">
+				<use href="#oval-shape" id="c4b1" fill="url(#green-stripes)" stroke="rgb(0, 178, 89)" stroke-width="7">
+				</use>
+			</svg>
+		</div>
+		<div id="c5" class="set-cell" onclick="cellClicked('5')">
+			<svg viewBox=" -7 -7 90 164" id="c5v1">
+				<use href="#oval-shape" id="c5b1" fill="url(#green-stripes)" stroke="rgb(0, 178, 89)" stroke-width="7">
+				</use>
+			</svg>
+		</div>
+		<div id="c6" class="set-cell" onclick="cellClicked('6')">
+			<svg viewBox=" -7 -7 90 164" id="c6v1">
+				<use href="#oval-shape" id="c6b1" fill="url(#green-stripes)" stroke="rgb(0, 178, 89)" stroke-width="7">
+				</use>
+			</svg>
+		</div>
+		<div id="c7" class="set-cell" onclick="cellClicked('7')">
+			<svg viewBox=" -7 -7 90 164" id="c7v1">
+				<use href="#oval-shape" id="c7b1" fill="url(#green-stripes)" stroke="rgb(0, 178, 89)" stroke-width="7">
+				</use>
+			</svg>
+		</div>
+		<div id="c8" class="set-cell" onclick="cellClicked('8')">
+			<svg viewBox=" -7 -7 90 164" id="c8v1">
+				<use href="#oval-shape" id="c8b1" fill="url(#green-stripes)" stroke="rgb(0, 178, 89)" stroke-width="7">
+				</use>
+			</svg>
+		</div>
+		<div id="c9" class="set-cell" onclick="cellClicked('9')">
+			<svg viewBox=" -7 -7 90 164" id="c9v1">
+				<use href="#oval-shape" id="c9b1" fill="url(#green-stripes)" stroke="rgb(0, 178, 89)" stroke-width="7">
+				</use>
+			</svg>
+		</div>
+		<div id="c10" class="set-cell" onclick="cellClicked('10')">
+			<svg viewBox=" -7 -7 90 164" id="c10v1">
+				<use href="#oval-shape" id="c10b1" fill="url(#green-stripes)" stroke="rgb(0, 178, 89)" stroke-width="7">
+				</use>
+			</svg>
+		</div>
+		<div id="c11" class="set-cell" onclick="cellClicked('11')">
+			<svg viewBox=" -7 -7 90 164" id="c11v1">
+				<use href="#oval-shape" id="c11b1" fill="url(#green-stripes)" stroke="rgb(0, 178, 89)" stroke-width="7">
+				</use>
+			</svg>
+		</div>
+		<div id="c12" class="set-cell" onclick="cellClicked('12')">
+			<svg viewBox=" -7 -7 90 164" id="c12v1">
+				<use href="#oval-shape" id="c12b1" fill="url(#green-stripes)" stroke="rgb(0, 178, 89)" stroke-width="7">
+				</use>
+			</svg>
+		</div>
+
+	</section>
+	<div class="bottombar">
+		<p id="sets" class="text">Sets: 0 |</p>
+		<p id="cleft" class="text">Cards Left: 69 |</p>
+		<p id="status" class="text">Board has Sets! |</p>
+		<p class = "button" id="newgame" onclick="newGame()">Restart Game</p>
+		<p id="status" class="text"> |</p>
+		<a href="http://magliery.com/Set/SetRules.html">Rules</a>
+	</div>
+	<script src="set.js"></script>
+	<svg class="set-defs">
+		<defs>
+			<pattern id="red-stripes" y="12.25" width="6" height="17" patternUnits="userSpaceOnUse">
+				<rect width="6" height="5.6000000000000005" fill="rgb(239, 62, 66)"></rect>
+			</pattern>
+			<pattern id="green-stripes" y="12.25" width="6" height="17" patternUnits="userSpaceOnUse">
+				<rect width="6" height="5.6000000000000005" fill="rgb(0, 178, 89)"></rect>
+			</pattern>
+			<pattern id="purple-stripes" y="12.25" width="6" height="17" patternUnits="userSpaceOnUse">
+				<rect width="6" height="5.6000000000000005" fill="rgb(73, 47, 146)"></rect>
+			</pattern>
+			<path id="diamond-shape" d="M1 74L35 2l36 73-36 74z"></path>
+			<path id="oval-shape" d="M36 149c-19 0-34-15-34-33V35C2 16 17 1 36 1s34 15 34 34v81c0 18-15 33-34 33z">
+			</path>
+			<path id="squiggle-shape"
+				d="M9.64,77.38C15.73,63.23,19.46,50.9,12,33.71,6.57,21.25-3.54,13.79,1.84,6.76c7.06-9.19,31.8-10.89,50.79,6.9,18.12,17,13.77,49.45,6.14,64.12-7,13.55-4.38,29.55,8.37,48.23C79.21,143.69,46,156.12,20.42,141.67-1.76,129.1-2.46,105.54,9.64,77.38Z">
+			</path>
+		</defs>
+	</svg>
+</body>
+
+</html>
