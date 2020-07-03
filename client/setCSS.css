@@ -1,0 +1,369 @@
+* {
+	padding: 0;
+	border: 0;
+	box-sizing: border-box;
+}
+#gamePage{
+	min-height: 100%;
+	min-width: 100%;
+	display:none;
+	background-image: url('backG.png');
+	justify-content: center;
+	align-items: center;
+
+}
+.memory-game{
+	position: relative;
+	border: 5px solid grey;	
+	display: flex;
+	flex-wrap: wrap;
+	height: 75vh;
+	width: 50%;
+	padding:10px;
+	align-content: flex-start;
+	background-color: white;
+	transition: height 1s;
+	
+}
+.flip-card-container{
+	position: absolute;
+	top: 0vh;
+	left: 0%;
+	width: 33%;
+	height: 16vh;
+	perspective: 1000px;
+	opacity: 0;
+	transition: all 1s;
+	z-index: 2;
+}
+.pos1{
+	top: 0vh;
+	left: 0%;
+}
+.pos2{
+	top: 0vh;
+	left: 33%;
+}
+.pos3{
+	top: 0vh;
+	left: 66%;
+}
+.pos4{
+	top: 16vh;
+	left: 0%;
+}
+.pos5{
+	top: 16vh;
+	left: 33%;
+}
+.pos6{
+	top: 16vh;
+	left: 66%;
+}
+.pos7{
+	top: 32vh;
+	left: 0%;
+}
+.pos8{
+	top: 32vh;
+	left: 33%;
+}
+.pos9{
+	top: 32vh;
+	left: 66%;
+}
+.pos10{
+	top: 48vh;
+	left: 0%;
+}
+.pos11{
+	top: 48vh;
+	left: 33%;
+}
+.pos12{
+	top: 48vh;
+	left: 66%;
+}
+.pos13{
+	top: 64vh;
+	left: 0%;
+}
+.pos14{
+	top: 64vh;
+	left: 33%;
+}
+.pos15{
+	top: 64vh;
+	left: 66%;
+}
+.pos16{
+	top: 80vh;
+	left: 0%;
+}
+.pos17{
+	top: 80vh;
+	left: 33%;
+}
+.pos18{
+	top: 80vh;
+	left: 66%;
+}	
+.opac100{
+	opacity: 1;
+}
+.front-back{
+	
+	width: 100%;
+	height: 100%;
+	transition: transform 1s;
+	transform-style: preserve-3d;
+}
+.set-cell{
+	position: absolute;
+	display:flex;
+	background-color: white;
+    border: 1px solid grey;
+	border-radius: 10px;
+	width: 100%;
+	height: 100%;
+	align-items: center;
+	justify-content: center;
+	transition: transform 1s;
+	transform-style: preserve-3d;
+}
+.front-back-transformer{
+	transform: rotateY(180deg); /* <=>  rotateY(.5turn) */
+}
+.set-cell, .cell-back{
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	-webkit-backface-visibility: hidden;
+	backface-visibility: hidden;
+ 	display: flex;
+ 	justify-content: center;
+	align-items: center;
+}
+.cell-back{
+	transform: rotateY(180deg);
+}
+.cell-back img{
+	object-fit: fill;
+	height: 100%;
+	width: 100%;
+	display: block; 
+	border-radius: 10px;
+}
+.set-cell svg{
+	height: 75%;
+	max-width: 23%;	
+}
+.set-defs {
+    height: 0;
+    width: 0;
+}
+#board{
+	margin-left: 5%;
+}
+#right-board{
+	margin-right: 5%;
+}
+.bottombar{
+	width: 20%;
+	max-height: 75vh;
+	min-height: 75vh;
+	padding: 10px;
+	justify-content: center;
+	align-items: center;
+	background-color: white;
+}
+.bottombar p, a{
+	text-align: center;
+	font-size: 25px;
+	font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+.button{
+	text-align: center;
+	font-size: 25px;
+	font-family: Verdana, Geneva, Tahoma, sans-serif;
+	background-color: white;
+}
+.button:hover{
+	background-color: rgb(158, 150, 150);
+}
+
+#containerGamePlayers{
+	background-color: white;
+	padding: 10px;
+
+}
+#containerGamePlayers .player {
+	padding-top: 10px;
+	padding-right: 10px;
+	padding-bottom: 10px;
+	border-bottom: 1px solid #000000;
+
+    display: flex;
+    flex-direction: row;
+	align-items: center;
+	justify-content: flex-start;
+}
+#containerGamePlayers .player .rank {
+	font-family: Verdana, Geneva, Tahoma, sans-serif;
+    flex: auto;
+    color: #000;
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 30px;
+	padding-right: 10px;
+}
+#containerGamePlayers .player .info {
+    flex: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    line-height: 1;
+	color: #000;
+	overflow: hidden;
+}
+#containerGamePlayers .player .info .name {
+	font-family: Verdana, Geneva, Tahoma, sans-serif;
+    flex: auto;
+	font-size: 20px;
+	padding-bottom: 10px;
+	padding-top: 10px;
+	text-overflow: ellipsis;
+	overflow: hidden;
+	white-space: nowrap;
+	
+}
+#containerGamePlayers .player .info .score {
+	font-family: Verdana, Geneva, Tahoma, sans-serif;
+    flex: auto;
+	font-size: 20px;
+	overflow: hidden;
+	white-space: nowrap;
+	padding-bottom: 10px;
+
+}
+.modal {
+	display: none; /* Hidden by default */
+	position: fixed; /* Stay in place */
+	z-index: 1; /* Sit on top */
+	left: 0;
+	top: 0;
+	width: 100vw; /* Full width */
+	height: 100vh; /* Full height */
+	overflow: auto; /* Enable scroll if needed */
+	background-color: rgb(0,0,0); /* Fallback color */
+	background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+  }
+  /* Modal Content/Box */
+  .modal-content {
+	background-color: #fefefe;
+	margin: 40vh auto; /* 15% from the top and centered */
+	padding: 20px;
+	border: 1px solid #888;
+	width: 30%; /* Could be more or less, depending on screen size */
+  }
+.modal-content p{
+	font-size: 40px;
+	font-family: Verdana, Geneva, Tahoma, sans-serif;
+	display: block;
+  }
+  
+  /* The Close Button */
+  .close {
+	color: #aaa;
+	float: right;
+	font-size: 28px;
+	font-weight: bold;
+  }
+  
+  .close:hover,
+  .close:focus {
+	color: black;
+	text-decoration: none;
+	cursor: pointer;
+  }
+  html {
+	height: 100%;
+  }
+  
+  body {
+	height: 100%;
+	margin: 0;
+	font-family: Arial, Helvetica, sans-serif;
+	display: grid;
+	justify-items: center;
+	align-items: center;
+	background-color: #3a3a3a;
+	background-image: url('backG.png');
+  }
+#main-holder {
+	display: grid;
+	width: 50%;
+	height: 70%;
+	justify-items: center;
+	align-items: center;
+	background-color: white;
+	border-radius: 7px;
+	box-shadow: 0px 0px 5px 2px black;
+  }
+  
+  #login-error-msg-holder {
+	width: 100%;
+	height: 100%;
+	display: grid;
+	justify-items: center;
+	align-items: center;
+  }
+  
+  #login-error-msg {
+	width: 23%;
+	text-align: center;
+	margin: 0;
+	padding: 5px;
+	font-size: 12px;
+	font-weight: bold;
+	color: #8a0000;
+	border: 1px solid #8a0000;
+	background-color: #e58f8f;
+	opacity: 0;
+  }
+  
+  #error-msg-second-line {
+	display: block;
+  }
+  
+  #login-form {
+	align-self: flex-start;
+	display: grid;
+	justify-items: center;
+	align-items: center;
+  }
+  
+  .login-form-field::placeholder {
+	color: #3a3a3a;
+  }
+  
+  .login-form-field {
+	border: none;
+	border-bottom: 1px solid #3a3a3a;
+	margin-bottom: 10px;
+	border-radius: 3px;
+	outline: none;
+	padding: 0px 0px 5px 5px;
+  }
+  
+  #login-form-submit {
+	width: 100%;
+	padding: 7px;
+	border: none;
+	border-radius: 5px;
+	color: white;
+	font-weight: bold;
+	background-color: #3a3a3a;
+	cursor: pointer;
+	outline: none;
+  }

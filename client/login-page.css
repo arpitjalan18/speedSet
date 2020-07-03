@@ -1,0 +1,13 @@
+html {
+  height: 100%;
+}
+
+body {
+  height: 100%;
+  margin: 0;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  display: grid;
+  justify-items: center;
+  align-items: center;
+  background-image: url('backG.png');
+}

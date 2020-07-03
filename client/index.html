@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+
+
+<head>
+	<title>Set!</title>
+	<link href="/client/setCSS.css" rel="stylesheet" type="text/css">
+	<script defer src="/client/set.js"></script>
+</head>
+
+<body>
+	<main id="main-holder">
+		<h1 id="login-header">Create a Username!</h1>
+		<div id="login-error-msg-holder">
+			<p id="login-error-msg">Username is too<span id="error-msg-second-line">long!</span></p>
+		</div>
+
+		<form id="login-form">
+			<input type="text" name="username" id="username-field" class="login-form-field" placeholder="Username">
+			<input type="submit" value="Login" id="login-form-submit">
+		</form>
+
+	</main>
+	<div id="gamePage">
+		<div id="myModal" class="modal">
+
+			<!-- Modal content -->
+			<div class="modal-content">
+				<span class="close">&times;</span>
+				<p>Congrats! You Won!</p>
+				<p class="button" id="newgame" onclick="newGame()">New Game</p>
+			</div>
+
+		</div>
+		<div id = 'board' class="bottombar">
+			<p id=scoreboard>Scoreboard</p>
+			<div id="containerGamePlayers">
+				<div class="player" id="player0" style="display: none">
+					<div class="rank">#1</div>
+					<div class="info">
+						<div class="name">person2</div>
+						<div class="score">Sets: 0</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<section id="cardHolder" class= "memory-game">
+			<div id="container0" class="flip-card-container" style="display:none">
+				<div class="front-back">
+					<div id="c0" class="set-cell">
+						<svg viewBox=" -7 -7 90 164" class="vBox">
+							<use href="#oval-shape" class="hBox" fill="url(#green-stripes)" stroke="rgb(0, 178, 89)"
+								stroke-width="7">
+							</use>
+						</svg>
+					</div>
+					<div class="cell-back">
+						<img src="/client/patternpurple.jpg" alt="Card Back Broke">
+					</div>
+				</div>
+			</div>
+		</section>
+		<div id = 'right-board' class='bottombar'>
+			<p id="cleft" class="text">69 Cards Left in Deck</p>
+			<p class="button" id="newgame" onclick="newGame()">Restart Game</p>
+		</div>
+		<svg class="set-defs">
+			<defs>
+				<pattern id="red-stripes" y="12.25" width="6" height="17" patternUnits="userSpaceOnUse">
+					<rect width="6" height="5.6000000000000005" fill="rgb(239, 62, 66)"></rect>
+				</pattern>
+				<pattern id="green-stripes" y="12.25" width="6" height="17" patternUnits="userSpaceOnUse">
+					<rect width="6" height="5.6000000000000005" fill="rgb(0, 178, 89)"></rect>
+				</pattern>
+				<pattern id="purple-stripes" y="12.25" width="6" height="17" patternUnits="userSpaceOnUse">
+					<rect width="6" height="5.6000000000000005" fill="rgb(73, 47, 146)"></rect>
+				</pattern>
+				<path id="diamond-shape" d="M1 74L35 2l36 73-36 74z"></path>
+				<path id="oval-shape" d="M36 149c-19 0-34-15-34-33V35C2 16 17 1 36 1s34 15 34 34v81c0 18-15 33-34 33z">
+				</path>
+				<path id="squiggle-shape"
+					d="M9.64,77.38C15.73,63.23,19.46,50.9,12,33.71,6.57,21.25-3.54,13.79,1.84,6.76c7.06-9.19,31.8-10.89,50.79,6.9,18.12,17,13.77,49.45,6.14,64.12-7,13.55-4.38,29.55,8.37,48.23C79.21,143.69,46,156.12,20.42,141.67-1.76,129.1-2.46,105.54,9.64,77.38Z">
+				</path>
+			</defs>
+		</svg>
+	</div>
+</body>
+<script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+<script>
+
+</script>
+
+</html>
