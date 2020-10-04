@@ -356,7 +356,7 @@
 	padding: 0px 0px 5px 5px;
   }
   
-  #login-form-submit {
+  .login-button{
 	width: 100%;
 	padding: 7px;
 	border: none;
@@ -366,4 +366,5 @@
 	background-color: #3a3a3a;
 	cursor: pointer;
 	outline: none;
+	margin-bottom: 30px;
   }

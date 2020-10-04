@@ -10,14 +10,16 @@
 
 <body>
 	<main id="main-holder">
-		<h1 id="login-header">Create a Username!</h1>
+		<h1 id="login-header">Create or Join a Game!</h1>
 		<div id="login-error-msg-holder">
 			<p id="login-error-msg">Username is too<span id="error-msg-second-line">long!</span></p>
 		</div>
-
 		<form id="login-form">
 			<input type="text" name="username" id="username-field" class="login-form-field" placeholder="Username">
-			<input type="submit" value="Login" id="login-form-submit">
+			<input type="button" value="Host Game" id = "host-button" class = "login-button">
+			<input type="text" name="username2" id="username-field" class="login-form-field" placeholder="Username">
+			<input type="text" name="gameid" id="game-id-field" class="login-form-field" placeholder="Game ID">
+			<input type="submit" value="Join Game" id="login-form-submit" class = "login-button">
 		</form>
 
 	</main>

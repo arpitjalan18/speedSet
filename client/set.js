@@ -8,22 +8,41 @@
 const loginForm = document.getElementById("login-form");
 const loginButton = document.getElementById("login-form-submit");
 const loginErrorMsg = document.getElementById("login-error-msg");
-
-loginButton.addEventListener("click", (e) => {
+const hostButton = document.getElementById("host-button");
+var socket = io();
+hostButton.addEventListener("click", (e) => {
     e.preventDefault();
     const username = loginForm.username.value;
-
+    const gameid = "a" + (Math.floor(Math.random() * Math.floor(100000)) + 100000);
+    console.log(gameid + username);
     if (username.length < 10 && username.length > 0) {
-        alert("You have successfully logged in.");
-        document.getElementById("gamePage").style.display = "flex";
-        document.getElementById("main-holder").style.display = "none";
-        socket.emit('username', username);
-    } else {
+        socket.emit('login', username, gameid, true);
+    }else{
         loginErrorMsg.style.opacity = 1;
     }
 })
+loginButton.addEventListener("click", (e) => {
+    e.preventDefault();
+    const username = loginForm.username2.value;
+    const gameid = loginForm.gameid.value;
+    if (username.length < 10 && username.length > 0) {
+        socket.emit('login', username, gameid, false);
+    } else{
+        loginErrorMsg.style.opacity = 1;
+    }
+})
+socket.on('loginState', function(bool){
+    if(bool){
+        alert("You have successfully logged in.");
+        document.getElementById("gamePage").style.display = "flex";
+        document.getElementById("main-holder").style.display = "none";
+    }
+    else{
+        loginErrorMsg.style.opacity = 1;
+    }
+});
 
-var socket = io();
+
 function returnRGB(color) {
     if (color == "green") {
         return "rgb(0, 178, 89)";
@@ -46,44 +65,19 @@ function getOffset(el) {
     };
 }
 var currentCards = [];
-socket.on('currentCards', function (curr, amtCards, clicked, newp) {
+socket.on('currentCards', function (curr, amtCards, clicked) {
+    console.log('ye i made it bro');
+    var timeouts = 0;
     document.querySelector("#cleft").innerHTML = amtCards + " Cards Left in Deck";
     console.log(clicked);
     if (JSON.stringify(curr) != JSON.stringify(currentCards)) {
-        if (newp) {
-            var timeouts = 0;
-        }
-        else {
-            var timeouts = 0;
-        }
-
         if (clicked != null) {
             for (var i = 0; i < clicked.length; i++) {
-                if (clicked[i] == 1 || clicked[i] == 5) {
+                if (clicked[i] < 2) {
+                    timeouts = 1000;
                     var flipMe = document.querySelector('#container' + (i + 1) + " .front-back");
                     flipMe.classList.add('front-back-transformer');
-                }
-                if (clicked[i] == 3) {
-                    var newBack = document.querySelector('#container' + (i - 2)).cloneNode(true);
-                    // newBack.classList.add('opac0');
-                    newBack.classList.remove('opac100');
-                    newBack.id = "container" + (i + 1);
-                    newBack.style.zIndex = "1";
-                    newBack.querySelector(".front-back").classList.add('front-back-transformer');
-                    var lastCard = document.querySelector('#container' + (i));
-                    lastCard.after(newBack);
-
-                    setTimeout(function (index) {
-                        document.querySelector('#container' + (index + 1)).classList.add('pos' + (index + 1));
-                        document.querySelector('#container' + (index + 1)).classList.add('opac100');
-
-                    }, 10, i);
-                }
-                if (clicked[i] == 4) {
-                    document.querySelector('#container' + (i + 1)).classList.remove('opac100');
-                    var flipMe = document.querySelector('#container' + (i + 1) + " .front-back");
-                    flipMe.classList.add('front-back-transformer');
-                }
+                }  
             }
         }
 
@@ -95,8 +89,8 @@ socket.on('currentCards', function (curr, amtCards, clicked, newp) {
 
             for (var i = 0; i < clicked.length; i++) {
                 if (clicked[i] == 1 || clicked[i] == 3 || clicked[i] == 4) {
-                    //  var element = document.querySelector('#container' + (i + 1));
-                    //  element.parentElement.removeChild(element);
+                    //var element = document.querySelector('#container' + (i + 1));
+                    //element.parentElement.removeChild(element);
                 }
             }
 
@@ -104,19 +98,14 @@ socket.on('currentCards', function (curr, amtCards, clicked, newp) {
             var top = 0;
             var left = 0;
             for (var i = 1; i < clicked.length + 1; i++) {
-                if (clicked[i - 1] > 0 && clicked[i - 1] < 4) {
+                if (clicked[i - 1] < 4) {
                     var newCardDOM = original.cloneNode(true);
                     newCardDOM.classList.add('pos' + i);
                     newCardDOM.classList.add('opac100');
                     newCardDOM.style = "";
                     newCardDOM.id = "container" + i;
                     newCardDOM.setAttribute("onClick", 'cellClicked(' + i + ')');
-                    if (clicked[i - 1] != 2) {
-                        newCardDOM.querySelector('.front-back .set-cell').id = "c" + i + "back";
-                    }
-                    else {
-                        newCardDOM.querySelector('.front-back .set-cell').id = "c" + i;
-                    }
+                    newCardDOM.querySelector('.front-back .set-cell').id = "c" + i;
                     newCardDOM.querySelector('.front-back').classList.add('front-back-transformer');
 
                     var element = newCardDOM.querySelector('.front-back .set-cell .vBox .hBox');
@@ -141,7 +130,8 @@ socket.on('currentCards', function (curr, amtCards, clicked, newp) {
 
                     if (clicked[i - 1] != 2) {
                         var lastCard = document.querySelector('#c' + (i));
-                        lastCard.after(newCardDOM.querySelector('#c' + i + 'back'));
+                        lastCard.after(newCardDOM.querySelector('#c' + i));
+                        lastCard.parentElement.removeChild(lastCard);
                     }
                     else {
                         var lastCard = document.querySelector('#container' + (i - 1));
@@ -152,32 +142,22 @@ socket.on('currentCards', function (curr, amtCards, clicked, newp) {
                         noCard.parentElement.removeChild(noCard);
                     }
                     for (k = 2; k < 1 + tempCard.quantity; k++) {
-                        if (clicked[i - 1] != 2) {
-                            var originalS = document.querySelector('#c' + i + 'back .vBox');
-                        }
-                        else {
-                            var originalS = document.querySelector('#c' + i + ' .vBox');
-                        }
+                     
+                        var originalS = document.querySelector('#c' + i + ' .vBox');
+                        
                         var clone = originalS.cloneNode(true);
                         originalS.before(clone);
 
                     }
-                    if (clicked[i - 1] != 2) {
-                        setTimeout(function (i) {
-                            var flipMe = document.querySelector('#container' + (i) + " .front-back");
-                            flipMe.classList.add('front-back-transformer');
-                        }, 100, i);
-                    }
-                    //  document.querySelector('#c' + i).classList.add('transition-cell');
+
 
                 }
             }
         }, timeouts);
-
         setTimeout(() => {
             if (clicked != null) {
                 for (var i = 0; i < curr.length; i++) {
-                    if (clicked[i] > 0 && clicked[i] < 4) {
+                    if (clicked[i] < 4) {
                         var flipMe = document.querySelector('#container' + (i + 1) + " .front-back")
                         flipMe.classList.remove('front-back-transformer');
                     }
@@ -250,7 +230,7 @@ socket.on('users', function (PLAYER_LIST, id) {
     }
 });
 
-var clicked = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+var clicked = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 function cellClicked(cellIndex) {
 
     if (clicked[cellIndex - 1] == 1) {
