@@ -9,15 +9,19 @@ const loginForm = document.getElementById("login-form");
 const loginButton = document.getElementById("login-form-submit");
 const loginErrorMsg = document.getElementById("login-error-msg");
 const hostButton = document.getElementById("host-button");
+const startButton = document.getElementById("startgame");
+const timer = document.getElementById("timer");
+var admin = false;
 var socket = io();
 hostButton.addEventListener("click", (e) => {
     e.preventDefault();
     const username = loginForm.username.value;
-    const gameid = "a" + (Math.floor(Math.random() * Math.floor(100000)) + 100000);
+    const gameid = "A" + (Math.floor(Math.random() * Math.floor(100000)) + 100000);
     console.log(gameid + username);
     if (username.length < 10 && username.length > 0) {
         socket.emit('login', username, gameid, true);
-    }else{
+        admin = true;
+    } else {
         loginErrorMsg.style.opacity = 1;
     }
 })
@@ -27,22 +31,70 @@ loginButton.addEventListener("click", (e) => {
     const gameid = loginForm.gameid.value;
     if (username.length < 10 && username.length > 0) {
         socket.emit('login', username, gameid, false);
-    } else{
+        admin = false;
+    } else {
         loginErrorMsg.style.opacity = 1;
     }
 })
-socket.on('loginState', function(bool){
-    if(bool){
+socket.on('loginState', function (bool, gameid) {
+    if (bool) {
         alert("You have successfully logged in.");
         document.getElementById("gamePage").style.display = "flex";
         document.getElementById("main-holder").style.display = "none";
+        idview = document.getElementById("gameid");
+        idview.innerHTML = "Code: " + gameid;
+        if (admin) {
+            startButton.style = "";
+            timer.style = "display: none";
+        }
     }
-    else{
+    else {
         loginErrorMsg.style.opacity = 1;
     }
 });
 
-
+startButton.addEventListener("click", (e) => {
+    console.log('yeehaw');
+    e.preventDefault();
+    sec = 64;
+    tick();  
+    function tick() {
+        socket.emit("startGame", sec);
+        if (sec == 59){
+            sec = 10;
+        }
+        sec--;
+        if (sec >= 0) {
+            stopTime = setTimeout(tick, 1000);
+        } 
+    }
+    
+});
+socket.on('initiateGame', function (timeLeft) {
+    console.log(timeLeft);
+    timer.style = "";
+    startButton.style = "display: none";
+    if (timeLeft > 60) {
+        timer.innerHTML = timeLeft - 60;
+    }
+    else if (timeLeft == 60) {
+        timer.innerHTML = "Go!"
+        for (var i = 0; i < 12; i++) {
+            var flipMe = document.querySelector('#container' + (i + 1) + " .front-back")
+            flipMe.classList.remove('front-back-transformer');
+        }
+    }
+    else if (timeLeft > 0) {
+        timer.innerHTML = timeLeft;
+    }
+    else if(timeLeft == 0){
+        timer.innerHTML = timeLeft;
+        console.log('yo what up homei');
+        for (var i = 0; i < 12; i++) {
+            document.querySelector('#container' + (i + 1) + " .front-back").classList.add('front-back-transformer');
+        }
+    }
+})
 function returnRGB(color) {
     if (color == "green") {
         return "rgb(0, 178, 89)";
@@ -77,7 +129,7 @@ socket.on('currentCards', function (curr, amtCards, clicked) {
                     timeouts = 1000;
                     var flipMe = document.querySelector('#container' + (i + 1) + " .front-back");
                     flipMe.classList.add('front-back-transformer');
-                }  
+                }
             }
         }
 
@@ -142,9 +194,9 @@ socket.on('currentCards', function (curr, amtCards, clicked) {
                         noCard.parentElement.removeChild(noCard);
                     }
                     for (k = 2; k < 1 + tempCard.quantity; k++) {
-                     
+
                         var originalS = document.querySelector('#c' + i + ' .vBox');
-                        
+
                         var clone = originalS.cloneNode(true);
                         originalS.before(clone);
 
@@ -157,7 +209,7 @@ socket.on('currentCards', function (curr, amtCards, clicked) {
         setTimeout(() => {
             if (clicked != null) {
                 for (var i = 0; i < curr.length; i++) {
-                    if (clicked[i] < 4) {
+                    if (clicked[i] != 2) {
                         var flipMe = document.querySelector('#container' + (i + 1) + " .front-back")
                         flipMe.classList.remove('front-back-transformer');
                     }
@@ -167,7 +219,7 @@ socket.on('currentCards', function (curr, amtCards, clicked) {
     }
 });
 socket.on('users', function (PLAYER_LIST, id) {
-
+    console.log(PLAYER_LIST);
     pList = [];
 
     for (var i in PLAYER_LIST) {

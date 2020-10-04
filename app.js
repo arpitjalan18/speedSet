@@ -20,7 +20,9 @@ var Player = function (id, username, admin, gameid) {
         sets: 0,
         rank: 1,
         admin: admin,
-        gameid: gameid
+        gameid: gameid,
+        blue: false,
+        timer: 64
     }
     return self;
 }
@@ -35,7 +37,6 @@ io.sockets.on('connection', function (socket) {
         }
         delete SOCKET_LIST[socket.id];
         delete PLAYER_LIST[socket.id];
-        emitUsers();
         console.log("socket dc");
 
     });
@@ -60,7 +61,7 @@ io.sockets.on('connection', function (socket) {
             socket.emit('loginState', false)
         }
         else {
-            socket.emit('loginState', true)
+            socket.emit('loginState', true, gameid)
             var player = Player(socket.id, username, admin, gameid);
             PLAYER_LIST[socket.id] = player;
             var clicked = [];
@@ -78,10 +79,13 @@ io.sockets.on('connection', function (socket) {
             replaceSet(clicked, PLAYER_LIST[socket.id].gameid);
         }
         else {
-            console.log("fuck you arpit");
+            console.log("Just missed it!");
         }
     });
 
+    socket.on('startGame', function (timeLeft) {
+        startGame(socket.id, timeLeft);
+    });
     console.log('socket connection');
 
 });
@@ -116,10 +120,20 @@ function startProg() {
     }
     shuffle([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
 }
+function startGame(socketid, timeLeft) {
+    gameid = PLAYER_LIST[socketid].gameid;
+
+    for (var i in PLAYER_LIST) {
+        var socket = SOCKET_LIST[i];
+        if (PLAYER_LIST[i].gameid == gameid) {
+            socket.emit('initiateGame', timeLeft);
+        }
+    }
+}
 function emitCurrentCards(clicked, gameid) {
     emitUsers(gameid);
-    console.log(gameid + "hereher")
-    for (var i in SOCKET_LIST) {
+    console.log(gameid)
+    for (var i in PLAYER_LIST) {
         var socket = SOCKET_LIST[i];
         if (PLAYER_LIST[i].gameid == gameid) {
             socket.emit('currentCards', currentCards, cards.length, clicked);
@@ -128,8 +142,8 @@ function emitCurrentCards(clicked, gameid) {
 }
 
 function emitUsers(gameid) {
-    for (var i in SOCKET_LIST) {
-        var socket = SOCKET_LIST[i];    
+    for (var i in PLAYER_LIST) {
+        var socket = SOCKET_LIST[i];
         if (PLAYER_LIST[i].gameid == gameid) {
             socket.emit('users', filterObject(PLAYER_LIST, "gameid", gameid), i);
         }
@@ -192,10 +206,10 @@ function shuffle(clicked, gameid) {
         shuffle(clicked, gameid);
     }
 }
-const filterObject = (obj, filter, filterValue) => 
-   Object.keys(obj).reduce((acc, val) => 
-   (obj[val][filter] === filterValue ? {
-       ...acc,
-       [val]: obj[val]
-   }:acc                                        
-), {});
+const filterObject = (obj, filter, filterValue) =>
+    Object.keys(obj).reduce((acc, val) =>
+        (obj[val][filter] === filterValue ? {
+            ...acc,
+            [val]: obj[val]
+        } : acc
+        ), {});
