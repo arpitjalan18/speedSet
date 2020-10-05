@@ -15,6 +15,7 @@ const timer = document.getElementById("timer");
 var winners = [];
 var admin = false;
 var socket = io();
+var clickable = false;
 hostButton.addEventListener("click", (e) => {
     e.preventDefault();
     const username = loginForm.username.value;
@@ -108,8 +109,10 @@ socket.on('initiateGame', function (timeLeft) {
         timer.innerHTML = timeLeft - 60;
     }
     else if (timeLeft == 60) {
+        clickable = true;
         timer.innerHTML = "Go!"
         for (var i = 0; i < 12; i++) {
+            
             var flipMe = document.querySelector('#container' + (i + 1) + " .front-back")
             flipMe.classList.remove('front-back-transformer');
         }
@@ -118,6 +121,7 @@ socket.on('initiateGame', function (timeLeft) {
         timer.innerHTML = timeLeft;
     }
     else if (timeLeft == 0) {
+        clickable = false;
         timer.innerHTML = timeLeft;
         for (var i = 0; i < 12; i++) {
             document.querySelector('#container' + (i + 1) + " .front-back").classList.add('front-back-transformer');
@@ -314,7 +318,7 @@ function cellClicked(cellIndex) {
         document.querySelector("#c" + cellIndex).style.backgroundColor = 'white';
         clicked[cellIndex - 1] = 0;
     }
-    else {
+    else if (clickable){
         document.querySelector("#c" + cellIndex).style.backgroundColor = 'lightgrey';
         clicked[cellIndex - 1] = 1;
     }
