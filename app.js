@@ -22,7 +22,16 @@ var Player = function (id, username, admin, gameid) {
         admin: admin,
         gameid: gameid,
         blue: false,
-        timer: 64
+        timer: 64,
+        cardArrIndex: 0
+    }
+    return self;
+}
+var Room = function(id){
+    var self = {
+        id: id,
+        curr: [],
+        started: false
     }
     return self;
 }
@@ -32,8 +41,9 @@ io.sockets.on('connection', function (socket) {
     SOCKET_LIST[socket.id] = socket;
 
     socket.on('disconnect', function () {
-        if (socket.admin) {
-            clearRoom()
+        if (PLAYER_LIST[socket.id]!= null && PLAYER_LIST[socket.id].admin) {
+            delete ROOM_LIST[PLAYER_LIST[socket.id].gameid];
+            clearRoom(PLAYER_LIST[socket.id].gameid)
         }
         delete SOCKET_LIST[socket.id];
         delete PLAYER_LIST[socket.id];
@@ -43,48 +53,61 @@ io.sockets.on('connection', function (socket) {
 
     socket.on('login', function (username, gameid, admin) {
         roomExists = false;
+        gameStarted = false;
         if (admin) {
             roomExists = true;
-            ROOM_LIST[socket.id] = gameid;
             socket.join(gameid);
+            var room = Room(gameid);
+            ROOM_LIST[gameid] = room;
         }
         else {
             for (var i in ROOM_LIST) {
-                if (gameid == ROOM_LIST[i]) {
+                if (gameid == ROOM_LIST[i].id && !ROOM_LIST[gameid].started) {
                     roomExists = true;
                     socket.join(gameid)
                 }
             }
         }
         if (!roomExists) {
-            console.log("socket could not find room. emit that please. login failed")
-            socket.emit('loginState', false)
+            if (ROOM_LIST[gameid]!=null && ROOM_LIST[gameid].started){
+                socket.emit('loginState', false, "none", "a")
+            }
+            else{
+                socket.emit('loginState', false, "none", "b")
+            }
         }
         else {
-            socket.emit('loginState', true, gameid)
+            socket.emit('loginState', true, gameid, "none")
             var player = Player(socket.id, username, admin, gameid);
+
             PLAYER_LIST[socket.id] = player;
+            if(admin){
+                var temp = 60;
+                while(temp > 0){
+                    ROOM_LIST[gameid].curr.push(shuffle());
+                    temp--;
+                }
+            }
             var clicked = [];
-            for (var i = 0; i < currentCards.length; i++) {
+            for (var i = 0; i < 12; i++) {
                 clicked[i] = 2;
             }
-            emitCurrentCards(clicked, gameid);
+            emitCurrentCards(clicked, gameid, socket.id);
         }
     });
 
     socket.on('replaceSet', function (clicked, currentClientCards) {
-
-        if (JSON.stringify(currentClientCards) == JSON.stringify(currentCards)) {
-            PLAYER_LIST[socket.id].sets++;
-            replaceSet(clicked, PLAYER_LIST[socket.id].gameid);
-        }
-        else {
-            console.log("Just missed it!");
-        }
+        PLAYER_LIST[socket.id].sets++;
+        emitCurrentCards(clicked, PLAYER_LIST[socket.id].gameid, socket.id);
+       
     });
 
     socket.on('startGame', function (timeLeft) {
         startGame(socket.id, timeLeft);
+    });
+    socket.on('reset', function(){
+        gameid = PLAYER_LIST[socket.id].gameid;
+        resetGame(gameid)
     });
     console.log('socket connection');
 
@@ -102,10 +125,9 @@ var colors = ["green", "red", "purple"];
 var shapes = ["squiggle", "oval", "diamond"];
 var fills = ["none", "stripes", "full"];
 var quantity = [1, 2, 3];
-
 var cards = [];
-var currentCards = [];
 startProg();
+
 function startProg() {
 
     for (i = 0; i < 3; i++) {
@@ -118,27 +140,43 @@ function startProg() {
             }
         }
     }
-    shuffle([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
 }
 function startGame(socketid, timeLeft) {
     gameid = PLAYER_LIST[socketid].gameid;
-
+    ROOM_LIST[gameid].started = true;
     for (var i in PLAYER_LIST) {
         var socket = SOCKET_LIST[i];
         if (PLAYER_LIST[i].gameid == gameid) {
             socket.emit('initiateGame', timeLeft);
+            if (timeLeft < 1){
+                ROOM_LIST[gameid].started = false;
+            }
         }
     }
 }
-function emitCurrentCards(clicked, gameid) {
-    emitUsers(gameid);
-    console.log(gameid)
+function resetGame(gameid){
+    var temp = 60;
+    ROOM_LIST[gameid].curr = [];
+    while(temp > 0){
+        ROOM_LIST[gameid].curr.push(shuffle());
+        temp--;
+    }
     for (var i in PLAYER_LIST) {
         var socket = SOCKET_LIST[i];
         if (PLAYER_LIST[i].gameid == gameid) {
-            socket.emit('currentCards', currentCards, cards.length, clicked);
+            PLAYER_LIST[i].sets = 0;
+            var clicked = [];
+            for (var i = 0; i < 12; i++) {
+                clicked[i] = 3;
+            }
+            emitCurrentCards(clicked, gameid, socket.id)
         }
     }
+}
+function emitCurrentCards(clicked, gameid, socketid) {
+    emitUsers(gameid);
+    var socket = SOCKET_LIST[socketid]; 
+    socket.emit('currentCards', ROOM_LIST[gameid].curr[PLAYER_LIST[socketid].sets], 60-PLAYER_LIST[socketid].sets, clicked)
 }
 
 function emitUsers(gameid) {
@@ -149,20 +187,16 @@ function emitUsers(gameid) {
         }
     }
 }
-function replaceSet(clicked, gameid) {
-    shuffle(clicked, gameid);
-    emitCurrentCards(clicked, gameid);
-}
-function clearRoom(room, namespace = '/') {
-    let roomObj = io.nsps[namespace].adapter.rooms[room];
-    if (roomObj) {
-        // now kick everyone out of this room
-        Object.keys(roomObj.sockets).forEach(function (id) {
-            io.sockets.connected[id].leave(room);
-        })
+function clearRoom(room) {
+    for(var i in PLAYER_LIST){
+        var socket = SOCKET_LIST[i];
+        if (PLAYER_LIST[i].gameid == room) {
+            socket.emit('kicked');
+            socket.leave(room);
+        }
     }
 }
-function checkSets() {
+function checkSets(currentCards) {
     var set = currentCards;
     for (i = 0; i < currentCards.length; i++) {
         for (j = i + 1; j < currentCards.length; j++) {
@@ -192,18 +226,20 @@ function checkSets() {
     }
     return false;
 }
-function shuffle(clicked, gameid) {
-    tempCardDeck = cards;
-    console.log("im shuffling bitch");
-    currentCards = [];
+function shuffle() { 
+    tempCardDeck = JSON.parse(JSON.stringify(cards));
+    var currentCards = [];
     for (i = 1; i < 13; i++) {
         var index = Math.floor(Math.random() * tempCardDeck.length);
         var tempCard = tempCardDeck[index];
         tempCardDeck.splice(index, 1);
         currentCards.push(tempCard);
     }
-    if (!checkSets()) {
-        shuffle(clicked, gameid);
+    if (!checkSets(currentCards)) {
+        return shuffle();
+    }
+    else{
+        return currentCards;
     }
 }
 const filterObject = (obj, filter, filterValue) =>

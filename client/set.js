@@ -8,20 +8,26 @@
 const loginForm = document.getElementById("login-form");
 const loginButton = document.getElementById("login-form-submit");
 const loginErrorMsg = document.getElementById("login-error-msg");
+const loginErrorMsgLine2 = document.getElementById("error-msg-second-line");
 const hostButton = document.getElementById("host-button");
 const startButton = document.getElementById("startgame");
 const timer = document.getElementById("timer");
+var winners = [];
 var admin = false;
 var socket = io();
 hostButton.addEventListener("click", (e) => {
     e.preventDefault();
     const username = loginForm.username.value;
     const gameid = "A" + (Math.floor(Math.random() * Math.floor(100000)) + 100000);
-    console.log(gameid + username);
     if (username.length < 10 && username.length > 0) {
         socket.emit('login', username, gameid, true);
         admin = true;
-    } else {
+    } else if (username.length > 9) {
+        loginErrorMsg.innerHTML = "Username is too<span id='error-msg-second-line'>long!</span>"
+        loginErrorMsg.style.opacity = 1;
+    }
+    else {
+        loginErrorMsg.innerHTML = "You need a<span id='error-msg-second-line'>username!</span>"
         loginErrorMsg.style.opacity = 1;
     }
 })
@@ -32,11 +38,16 @@ loginButton.addEventListener("click", (e) => {
     if (username.length < 10 && username.length > 0) {
         socket.emit('login', username, gameid, false);
         admin = false;
-    } else {
+    } else if (username.length > 9) {
+        loginErrorMsg.innerHTML = "Username is too<span id='error-msg-second-line'>long!</span>"
+        loginErrorMsg.style.opacity = 1;
+    }
+    else {
+        loginErrorMsg.innerHTML = "You need a<span id='error-msg-second-line'>username!</span>"
         loginErrorMsg.style.opacity = 1;
     }
 })
-socket.on('loginState', function (bool, gameid) {
+socket.on('loginState', function (bool, gameid, errorCode) {
     if (bool) {
         alert("You have successfully logged in.");
         document.getElementById("gamePage").style.display = "flex";
@@ -49,29 +60,48 @@ socket.on('loginState', function (bool, gameid) {
         }
     }
     else {
+        if (errorCode == "a"){
+            loginErrorMsg.innerHTML = "That game has<span id='error-msg-second-line'>already started!</span>"
+        }
+        else if(errorCode =="b"){
+            loginErrorMsg.innerHTML = "That room does<span id='error-msg-second-line'>not exist!</span>"
+        }
         loginErrorMsg.style.opacity = 1;
     }
 });
+socket.on('kicked', function () {
+    loginErrorMsg.innerHTML = "The host has<span id='error-msg-second-line'>left the game!</span>"
+    loginErrorMsg.style.opacity = 1;
+    document.getElementById("gamePage").style.display = "none";
+    document.getElementById("main-holder").style.display = "";
+    for (var i = 1; i < 13; i++) {
+        var lastCard = document.querySelector('#container' + (i));
+        lastCard.parentElement.removeChild(lastCard);
+    }
+    timer.innerHTML = "Waiting to Start ..."
 
+});
 startButton.addEventListener("click", (e) => {
-    console.log('yeehaw');
+    if (startButton.innerHTML == "Start New Game!") {
+        socket.emit("reset");
+    }
     e.preventDefault();
     sec = 64;
-    tick();  
+    tick();
     function tick() {
         socket.emit("startGame", sec);
-        if (sec == 59){
-            sec = 10;
-        }
         sec--;
         if (sec >= 0) {
             stopTime = setTimeout(tick, 1000);
-        } 
+        }
+        else {
+            startButton.style = "";
+            startButton.innerHTML = "Start New Game!"
+        }
     }
-    
+
 });
 socket.on('initiateGame', function (timeLeft) {
-    console.log(timeLeft);
     timer.style = "";
     startButton.style = "display: none";
     if (timeLeft > 60) {
@@ -87,12 +117,16 @@ socket.on('initiateGame', function (timeLeft) {
     else if (timeLeft > 0) {
         timer.innerHTML = timeLeft;
     }
-    else if(timeLeft == 0){
+    else if (timeLeft == 0) {
         timer.innerHTML = timeLeft;
-        console.log('yo what up homei');
         for (var i = 0; i < 12; i++) {
             document.querySelector('#container' + (i + 1) + " .front-back").classList.add('front-back-transformer');
         }
+        if (admin) {
+            startButton.style = "";
+        }
+        timer.innerHTML = winners.join(" and ") + " Won!";
+
     }
 })
 function returnRGB(color) {
@@ -118,10 +152,8 @@ function getOffset(el) {
 }
 var currentCards = [];
 socket.on('currentCards', function (curr, amtCards, clicked) {
-    console.log('ye i made it bro');
     var timeouts = 0;
-    document.querySelector("#cleft").innerHTML = amtCards + " Cards Left in Deck";
-    console.log(clicked);
+    document.querySelector("#cleft").innerHTML = "You can do " + amtCards + " more sets!";
     if (JSON.stringify(curr) != JSON.stringify(currentCards)) {
         if (clicked != null) {
             for (var i = 0; i < clicked.length; i++) {
@@ -138,14 +170,6 @@ socket.on('currentCards', function (curr, amtCards, clicked) {
         setTimeout(() => {
 
             currentCards = curr;
-
-            for (var i = 0; i < clicked.length; i++) {
-                if (clicked[i] == 1 || clicked[i] == 3 || clicked[i] == 4) {
-                    //var element = document.querySelector('#container' + (i + 1));
-                    //element.parentElement.removeChild(element);
-                }
-            }
-
             var original = document.querySelector('#container0');
             var top = 0;
             var left = 0;
@@ -209,7 +233,7 @@ socket.on('currentCards', function (curr, amtCards, clicked) {
         setTimeout(() => {
             if (clicked != null) {
                 for (var i = 0; i < curr.length; i++) {
-                    if (clicked[i] != 2) {
+                    if (clicked[i] != 2 && clicked[i] != 3) {
                         var flipMe = document.querySelector('#container' + (i + 1) + " .front-back")
                         flipMe.classList.remove('front-back-transformer');
                     }
@@ -219,8 +243,8 @@ socket.on('currentCards', function (curr, amtCards, clicked) {
     }
 });
 socket.on('users', function (PLAYER_LIST, id) {
-    console.log(PLAYER_LIST);
     pList = [];
+    winners = [];
 
     for (var i in PLAYER_LIST) {
         if (i == id) {
@@ -243,8 +267,9 @@ socket.on('users', function (PLAYER_LIST, id) {
             bestScore = pList[i].sets;
             pList[i].rank = rank;
         }
-
-
+        if (rank == 1) {
+            winners.push(pList[i].username);
+        }
     }
 
     var numP = 1;
