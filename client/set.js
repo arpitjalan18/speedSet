@@ -123,9 +123,12 @@ socket.on('initiateGame', function (timeLeft) {
     else if (timeLeft == 0) {
         clickable = false;
         timer.innerHTML = timeLeft;
-        for (var i = 0; i < 12; i++) {
-            document.querySelector('#container' + (i + 1) + " .front-back").classList.add('front-back-transformer');
-        }
+        setTimeout(() => {
+            for (var i = 0; i < 12; i++) {
+                document.querySelector('#container' + (i + 1) + " .front-back").classList.add('front-back-transformer');
+            }
+        }, 1000);
+        
         if (admin) {
             startButton.style = "";
         }
