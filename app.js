@@ -45,8 +45,10 @@ io.sockets.on('connection', function (socket) {
             delete ROOM_LIST[PLAYER_LIST[socket.id].gameid];
             clearRoom(PLAYER_LIST[socket.id].gameid)
         }
+        var id = PLAYER_LIST[socket.id].gameid;
         delete SOCKET_LIST[socket.id];
         delete PLAYER_LIST[socket.id];
+        emitUsers(id);
         console.log("socket dc");
 
     });
